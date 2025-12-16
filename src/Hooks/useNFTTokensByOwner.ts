@@ -16,8 +16,11 @@ export const useNFTMulticall = () => {
     async (methodName: string, calls: NFTCall[]) => {
       try {
         // ✅ v6：BrowserProvider
-        const provider = new ethers.BrowserProvider(window.ethereum);
-
+         const provider = new ethers.JsonRpcProvider(
+             "https://rpc.juchain.org",
+             210000
+           );
+          
         // multicall 合约
         const multicallContract = new ethers.Contract(
           EnvManager.multiCallToken,
@@ -44,6 +47,7 @@ export const useNFTMulticall = () => {
 
         // 解码返回值
         const results = returnData.map((data, i) => {
+     
           const { abi } = calls[i];
           const iface = new ethers.Interface(abi);
           const decoded = iface.decodeFunctionResult(methodName, data);

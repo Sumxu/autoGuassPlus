@@ -1,7 +1,7 @@
 import "@/pages/Home/index.scss";
 import React, { useEffect, useState } from "react";
 import config from "@/config/config";
-// import abi from "@/Contract/ABI/abi";
+import abi from "@/Contract/ABI/abi";
 import { ethers } from "ethers";
 import { Input, Button, Space, Radio, Toast } from "antd-mobile";
 interface CycleBuyProps {
@@ -15,22 +15,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
     210000
   );
 
-  const abi = [
-    "function bind(address _inviter) external",
-    "function deposit(uint256 pid,uint256 amount) external payable",
-    "function maxStakeAmount() public view returns (uint256)",
-    "function withdraw(uint256 stakeId) external",
-    "function userIdsLength(address _user) external view returns (uint256)",
-    "function userInfo(address) external view returns (address inviter,uint256 vip,uint256 validDirect,uint256 teamPerf,uint256 mintageQuota,uint256 totalTeamReward)",
-    "function getAmountsJuIn(uint256 usdtAmount) public view returns(uint256)",
-  ];
-  const erc20ABI = [
-    "function approve(address,uint256) external",
-    "function balanceOf(address) external view returns (uint256)",
-    "function allowance(address,address) external view returns (uint256)",
-  ];
-  const stakeAddress = "0x7C215a653e0f7B2F58e1C3974a31ded9c5bD0d83"; //合约地址
-  const USDTAddress = "0x55d398326f99059fF775485246999027B3197955";
+  const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A"; //合约地址
   const runningRef = React.useRef(false);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
   //动态绑定配置项
@@ -107,25 +92,10 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
     const wallet = new ethers.Wallet(configObject.wallets[nextId], provider);
     const contract = new ethers.Contract(stakeAddress, abi, wallet);
     const userInfoData = await contract.userInfo(wallet.address);
-    console.log("userInfoData==",userInfoData)
     if (userInfoData[0] === "0x0000000000000000000000000000000000000000") {
       const tx = await contract.bind(configObject.initInviter);
       await tx.wait();
       console.log("授权成功", wallet.address);
-    }
-  }
-
-  async function checkAndApprove(privateKey) {
-    const wallet = new ethers.Wallet(privateKey, provider);
-    const contract = new ethers.Contract(USDTAddress, erc20ABI, wallet);
-    const allowAmount = await contract.allowance(wallet.address, stakeAddress);
-    if (allowAmount < 1000000000000000000000n) {
-      appendLog("钱包开始授权:", wallet.address, "100000 USDT");
-      const tx = await contract.approve(
-        stakeAddress,
-        100000000000000000000000n
-      );
-      await tx.wait();
     }
   }
   async function cycleBuy(nextId: number) {
@@ -134,43 +104,46 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
       appendLog("cycleBuy 已终止");
       return;
     }
-
     if (nextId >= configObject.wallets.length) {
       nextId = 0;
     }
     const wallet = new ethers.Wallet(configObject.wallets[nextId], provider);
     const contract = new ethers.Contract(stakeAddress, abi, wallet);
+
     try {
       let maxStakeAmount = await contract.maxStakeAmount();
       if (!runningRef.current) return;
+
       if (maxStakeAmount > configObject.maxAmount) {
         maxStakeAmount = configObject.maxAmount;
       }
-
-      if (maxStakeAmount > configObject.minAmount) {
-        const depositAmount = (
+      if (maxStakeAmount >= configObject.minAmount) {
+        const amount =
           Math.random() *
             (configObject.maxAmount > maxStakeAmount
               ? maxStakeAmount
               : configObject.maxAmount - configObject.minAmount) +
-          configObject.minAmount
-        ).toFixed(0);
+          configObject.minAmount;
+        const depositAmount = Number(amount).toFixed(0);
         const walletBalance = await provider.getBalance(wallet.address);
         const amountsJuIn = await contract.getAmountsJuIn(
           ethers.parseEther(depositAmount)
         );
-        console.log("depositAmount==", depositAmount);
-        console.log("walletBalance==", walletBalance);
-        console.log("amountsJuIn==", amountsJuIn);
+        console.log("amountsJuIn==", amountsJuIn.toString());
         if (walletBalance > amountsJuIn) {
-          appendLog("抢购中", wallet.address, depositAmount);
-          const tx = await contract.deposit(
+          const curr = new Date();
+          console.log(
+            "符合购买条件",
+            wallet.address,
+            curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds()
+          );
+
+          const depositTx = await contract.deposit(
             configObject.days,
             ethers.parseEther(depositAmount),
-            0,
-            configObject.initInviter
+            { value: amountsJuIn }
           );
-          await tx.wait();
+          await depositTx.wait();
           appendLog("✅ 抢购成功", wallet.address);
         } else {
           appendLog(
@@ -183,6 +156,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
         nextId++;
       }
     } catch (e) {
+      console.log("e----", e);
       appendLog("❌ 抢购失败", e);
     }
     // ⏱️ 下一次执行

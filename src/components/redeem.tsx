@@ -1,6 +1,6 @@
 import "@/pages/Home/index.scss";
 import React, { useState, useImperativeHandle, forwardRef } from "react";
-import stakeAbi from "@/Contract/ABI/stakeAbi";
+import abi from "@/Contract/ABI/abi";
 import { ethers, Wallet, Contract } from "ethers";
 import { useNFTMulticall } from "@/Hooks/useNFTTokensByOwner";
 
@@ -9,11 +9,12 @@ interface RedeemProps {
 }
 
 const Redeem = forwardRef(({ privateKeyList }: RedeemProps, ref) => {
-  const stakeAddress = "0x7C215a653e0f7B2F58e1C3974a31ded9c5bD0d83";
-  const provider = new ethers.JsonRpcProvider(
-    "https://bsc.blockrazor.xyz/1915635065170173952",
-    56
-  );
+  const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A";
+    const provider = new ethers.JsonRpcProvider(
+      "https://rpc.juchain.org",
+      210000
+    );
+   
 
   const { fetch } = useNFTMulticall();
   const [logs, setLogs] = useState<string[]>([]);
@@ -29,10 +30,10 @@ const Redeem = forwardRef(({ privateKeyList }: RedeemProps, ref) => {
   const startUp = async () => {
     for (let i = 0; i < privateKeyList.length; i++) {
       const wallet = new Wallet(privateKeyList[i], provider);
-      const contract = new Contract(stakeAddress, stakeAbi, wallet);
+      const contract = new Contract(stakeAddress, abi, wallet);
       const userIds = await contract.userIdsLength(wallet.address);
       const address = wallet.address;
-      appendLog(`查询${address}钱包地址是否有`, userIds);
+      appendLog(`查询${address}钱包地址长度为`, userIds);
       if (userIds > 0) {
         getIdByIndex(userIds, wallet.address, contract);
       }
@@ -46,15 +47,15 @@ const Redeem = forwardRef(({ privateKeyList }: RedeemProps, ref) => {
   ) => {
     const calls = Array.from({ length: Number(userIds) }).map((_, index) => ({
       contractAddress: stakeAddress,
-      abi: stakeAbi,
+      abi: abi,
       params: [address, index],
     }));
     appendLog(`查询${address}钱包地址stakeId`);
     fetch("userHoldIds", calls).then(async (result) => {
       if (result.success) {
-        const holdIds = result.data;
+        const holdIds = result.data;  
         appendLog(`查询结束${address}数量为`, holdIds?.length);
-        fetchStakeInfo(holdIds, address, contract);
+         fetchStakeInfo(holdIds, address, contract);
       }
     });
   };
@@ -62,7 +63,7 @@ const Redeem = forwardRef(({ privateKeyList }: RedeemProps, ref) => {
     const calls = Array.from({ length: Number(holdIds.length) }).map(
       (_, index) => ({
         contractAddress: stakeAddress,
-        abi: stakeAbi,
+        abi: abi,
         params: [holdIds[index]],
       })
     );
@@ -74,7 +75,7 @@ const Redeem = forwardRef(({ privateKeyList }: RedeemProps, ref) => {
           const now = Date.now();
           const isExpired = now > Number(stakeInfo[5]) * 1000;
           if (isExpired) {
-            await withdrawFn(holdIds[i], contract, address);
+            await withdrawFn(holdIds[i], contract);
             appendLog(`${address}赎回成功`);
           } else {
             appendLog(`${address}未超过赎回时间`);
@@ -86,9 +87,8 @@ const Redeem = forwardRef(({ privateKeyList }: RedeemProps, ref) => {
   const withdrawFn = async (
     holdId: number,
     contract: Contract,
-    address: string
   ) => {
-    const tx = await contract.withdraw(holdId, address);
+    const tx = await contract.withdraw(holdId);
     await tx.wait();
   };
 
