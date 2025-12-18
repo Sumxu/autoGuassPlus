@@ -2,8 +2,16 @@ import "@/pages/Home/index.scss";
 import React, { useEffect, useState } from "react";
 import config from "@/config/config";
 import abi from "@/Contract/ABI/abi";
-import { ethers } from "ethers";
-import { Input, Button, Space, Radio, Toast } from "antd-mobile";
+import { ethers,formatEther } from "ethers";
+import {
+  Input,
+  Button,
+  Space,
+  Radio,
+  Toast,
+  Picker,
+  TextArea,
+} from "antd-mobile";
 interface CycleBuyProps {
   onDataChange: (data: any) => void;
   redeemChange: (data: any) => void;
@@ -14,7 +22,13 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
     "https://rpc.juchain.org",
     210000
   );
-
+   const basicColumns = [
+    [
+      { label: "1天", value: "0" },
+      { label: "15天", value: "1" },
+      { label: "30天", value: "2" },
+    ],
+  ];
   const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A"; //合约地址
   const runningRef = React.useRef(false);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -23,6 +37,10 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
   const [privateKeyList, setPrivateKeyList] = useState<string[]>([]);
   const [logs, setLogs] = useState<string[]>([]);
   const [startupLoading, setStartupLoading] = useState<boolean>(false);
+  const [maxStakeAmountStr, setMaxStakeAmountStr] = useState<bigint>(0n);
+  const [pickerVisible, setPickerVisible] = useState<boolean>(false);
+  const [pickerValue, setPickerValue] = useState<(string | null)[]>(["0"]);
+  const [walletsInputs, setWalletsInputs] = useState<string>("");
   // 封装日志方法
   const appendLog = (...msg: any[]) => {
     const text = msg
@@ -77,6 +95,25 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
 
     startup();
   };
+
+   function stringToArray(input: string | string[]): string[] {
+    // 如果已经是数组，直接返回
+    if (Array.isArray(input)) return input;
+
+    if (!input) return [];
+
+    return (
+      input
+        .trim()
+        // 按 空格 / 逗号 / 中文逗号 拆分
+        .split(/[\s,，]+/)
+        .filter(Boolean)
+    );
+  }
+  const pickerConfirm = (v) => {
+    updateField("days", v[0]);
+    setPickerValue(v);
+  };
   const closeConfig = () => {
     runningRef.current = false;
     setStartupLoading(false);
@@ -87,6 +124,15 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
     }
 
     appendLog("🛑 已停止抢购");
+  };
+   const textAreachange = (v) => {
+    const wallets = stringToArray(v);
+    setWalletsInputs(v);
+    setPrivateKeyList(wallets);
+    setConfigObject((prev) => ({
+      ...prev,
+      wallets: wallets,
+    }));
   };
   async function bind(nextId) {
     const wallet = new ethers.Wallet(configObject.wallets[nextId], provider);
@@ -112,6 +158,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
 
     try {
       let maxStakeAmount = await contract.maxStakeAmount();
+      setMaxStakeAmountStr(maxStakeAmount);
       if (!runningRef.current) return;
 
       if (maxStakeAmount > configObject.maxAmount) {
@@ -129,7 +176,6 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
         const amountsJuIn = await contract.getAmountsJuIn(
           ethers.parseEther(depositAmount)
         );
-        console.log("amountsJuIn==", amountsJuIn.toString());
         if (walletBalance > amountsJuIn) {
           const curr = new Date();
           console.log(
@@ -188,11 +234,16 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
     <div className="home-page-box">
       <div style={{ padding: 8 }}>
         <h3>天数(0/1/2 表示 1天/15天/30天 )</h3>
-        <Input
-          value={configObject.days}
-          onChange={(v) => updateField("days", v)}
-          placeholder="请输入天数"
-        />
+         <span
+          className="adm-input-element spnOption"
+          onClick={() => setPickerVisible(true)}
+        >
+          {basicColumns[0][configObject.days].label}
+        </span>
+        <h3>最大购买金额</h3>
+        <span className="adm-input-element spnOption">
+          {formatEther(maxStakeAmountStr)}
+        </span>
         <h3>最小投入金额</h3>
         <Input
           value={configObject.minAmount}
@@ -234,36 +285,20 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
           onChange={(v) => updateField("initInviter", v)}
           placeholder="请输入绑定邀请人"
         />
-        <h4>私钥列表</h4>
-        {configObject.wallets.map((w, idx) => (
-          <Space key={idx} align="center" style={{ width: "100%" }}>
-            <Input
-              value={w}
-              onChange={(v) => updateWallet(idx, v)}
-              placeholder={`私钥列表 ${idx + 1}`}
-              className="inputWalletsOption"
-            />
-            <Button
-              color="danger"
-              size="small"
-              className="delBtn"
-              onClick={() => {
-                const newWallets = configObject.wallets.filter(
-                  (_, index) => index !== idx
-                );
-                setConfigObject((prev) => ({
-                  ...prev,
-                  wallets: newWallets,
-                }));
-              }}
-            >
-              删除
-            </Button>
-          </Space>
-        ))}
-        <Button color="primary" onClick={addWallet}>
-          + 新增私钥
-        </Button>
+         <h3>私钥列表使用,隔开案例(私钥地址,私钥地址)</h3>
+        <Space align="center" style={{ width: "100%" }}>
+          <TextArea
+            value={walletsInputs}
+            rows="20"
+            onChange={(v) => textAreachange(v)}
+            placeholder={`私钥列表`}
+            className="inputWalletsTextArea"
+            style={{
+              "--color": "#FFF",
+            }}
+          />
+        </Space>
+     
         <div className="fixedBottom">
           <Button
             color="success"
@@ -300,6 +335,17 @@ const CycleBuy: React.FC<CycleBuyProps> = ({ onDataChange, redeemChange }) => {
           <div key={i}>{l}</div>
         ))}
       </div>
+        <Picker
+        columns={basicColumns}
+        visible={pickerVisible}
+        onClose={() => {
+          setPickerVisible(false);
+        }}
+        value={pickerValue}
+        onConfirm={(v) => {
+          pickerConfirm(v);
+        }}
+      />
     </div>
   );
 };

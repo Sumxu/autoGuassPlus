@@ -6,7 +6,10 @@
   .Title {
     text-align: center;
   }
- 
+  .spnOption{
+    line-height: 55px;
+    font-size: 16px;
+  }
   .adm-input-element {
     border-radius: 16px;
     background: #000;
@@ -19,6 +22,9 @@
   .inputWalletsOption {
     flex: auto !important;
     width: 280px;
+    // .adm-input-element{
+    //   height: 350px;
+    // }
   }
   .delBtn {
     flex: none !important;
@@ -40,4 +46,12 @@
 }
   h3{
     margin:6px 0;
+  }
+    .inputWalletsTextArea{
+    border-radius: 16px;
+    background: #000;
+    width: 570px !important;
+    height: 400px;
+    padding: 8px 12px;
+    color: #fff !important;
   }
