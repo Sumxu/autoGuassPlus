@@ -1,12 +1,32 @@
+.itemOption {
+  width: 600px;
+}
+.logBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  .title{
+    font-size: 20px;
+    font-weight: bold;
+  }
+  .delBtn{
+    border-radius: 8px;
+    padding: 4px 16px;
+    font-size: 16px;
+    border: 1px solid red;
+
+  }
+}
 .home-page-box {
   width: 100%;
   word-wrap: break-word; /* 老式兼容 */
   word-break: break-all; /* 强制在单词内换行 */
-  white-space: normal;   /* 允许换行，覆盖 nowrap */
+  white-space: normal; /* 允许换行，覆盖 nowrap */
   .Title {
     text-align: center;
   }
-  .spnOption{
+  .spnOption {
     line-height: 55px;
     font-size: 16px;
   }
@@ -36,22 +56,22 @@
       width: 100% !important;
     }
   }
-  .boxCenter{
+  .boxCenter {
     display: flex;
     align-items: center;
-    .boxRadio{
+    .boxRadio {
       margin-right: 12px;
     }
   }
 }
-  h3{
-    margin:6px 0;
-  }
-    .inputWalletsTextArea{
-    border-radius: 16px;
-    background: #000;
-    width: 570px !important;
-    height: 400px;
-    padding: 8px 12px;
-    color: #fff !important;
-  }
+h3 {
+  margin: 6px 0;
+}
+.inputWalletsTextArea {
+  border-radius: 16px;
+  background: #000;
+  height: 200px;
+  padding: 8px 12px;
+  width: 100%;
+  color: #fff !important;
+}
