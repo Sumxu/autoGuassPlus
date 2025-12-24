@@ -22,7 +22,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [startupLoading, setStartupLoading] = useState<boolean>(false);
-  let contract=null
+  let contract = null;
   // 封装日志方法
   const appendLog = (...msg: any[]) => {
     const text = msg
@@ -39,8 +39,42 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
   function getConfigValue(field: string) {
     return configPlusList.find((i) => i.field === field)?.value;
   }
+  const checkRedeemConfig = (): boolean => {
+    const type = Number(getConfigValue("buyType")) as 0 | 1;
+    const buySec = Number(getConfigValue("buySec"));
+
+    // 基础合法性
+    if (isNaN(buySec)) {
+      appendLog("❌ 抢购时间配置必须是数字");
+      return false;
+    }
+
+    if (buySec < 0) {
+      appendLog("❌ 抢购时间不能为负数");
+      return false;
+    }
+
+    // ⭐ 关键条件：type = 1 必须 ≤ 60
+    if (type === 1) {
+      if (buySec > 60) {
+        appendLog("❌ 抢购间隔类型类型为每分钟的时候，秒数必须在 0~60 之间");
+        return false;
+      }
+    }
+    if (!getConfigValue("initInviter")) {
+      appendLog("❌ 邀请人链接不能为空");
+      return false;
+    }
+    if (stringToArray(getConfigValue("walletsInputs")).length == 0) {
+      appendLog("❌ 私钥列表不能为空");
+      return false;
+    }
+
+    return true;
+  };
   const handleUpdateConfig = async () => {
     if (runningRef.current) return;
+
     runningRef.current = true;
     setStartupLoading(true);
     startup();
@@ -62,9 +96,13 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
     const contract = new ethers.Contract(stakeAddress, abi, wallet);
     const userInfoData = await contract.userInfo(wallet.address);
     if (userInfoData[0] === "0x0000000000000000000000000000000000000000") {
-      const tx = await contract.bind(getConfigValue("initInviter"));
-      await tx.wait();
-      appendLog(`${wallet.address} 绑定成功`);
+      try {
+        const tx = await contract.bind(getConfigValue("initInviter"));
+        await tx.wait();
+        appendLog(`${wallet.address} 绑定成功`);
+      } catch (error) {
+        appendLog(`${wallet.address} 绑定失败`, error);
+      }
     }
   }
   async function cycleBuy(nextId: number, wallets) {
@@ -77,24 +115,26 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
       nextId = 0;
     }
     const wallet = new ethers.Wallet(wallets[nextId], provider);
-    if(contract==null){
-       contract = new ethers.Contract(stakeAddress, abi, wallet)
-    }
+    const contract = new ethers.Contract(stakeAddress, abi, wallet);
     try {
-      let maxStakeAmount = await contract.maxStakeAmount();
-      updateField("maxStakeAmountStr", formatEther(maxStakeAmount));
+      const maxStakeAmountRes = await contract.maxStakeAmount();
+
+      let maxStakeAmount: number = Number(formatEther(maxStakeAmountRes));
+      updateField("maxStakeAmountStr", formatEther(maxStakeAmountRes));
+      const maxAmount = Number(getConfigValue("maxAmount"));
+      const minAmount = Number(getConfigValue("minAmount"));
       if (!runningRef.current) return;
-      if (maxStakeAmount > getConfigValue("maxAmount")) {
-        maxStakeAmount = getConfigValue("maxAmount");
+      if (maxStakeAmount >= Number(maxAmount)) {
+        maxStakeAmount = maxAmount;
       }
-      if (maxStakeAmount >= getConfigValue("minAmount")) {
+      if (maxStakeAmount >= minAmount) {
         const amount =
           Math.random() *
-            (getConfigValue("maxAmount") > maxStakeAmount
+            (maxAmount > maxStakeAmount
               ? maxStakeAmount
-              : getConfigValue("maxAmount") - getConfigValue("minAmount")) +
-          getConfigValue("minAmount");
-    
+              : maxAmount - minAmount) +
+          minAmount;
+
         let depositAmount = Number(amount).toFixed(0);
         if (depositAmount == 0) {
           depositAmount = getConfigValue("minAmount");
@@ -118,15 +158,13 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
             ethers.parseEther(depositAmount),
             { value: amountsJuIn }
           );
-          
+
           await depositTx.wait();
           appendLog("✅ 抢购成功", wallet.address);
         } else {
           appendLog(
             "WARN 钱包地址余额不足:  钱包: %s 余额: %s 需要JU: %s",
-            wallet.address,
-            walletBalance,
-            amountsJuIn
+            wallet.address
           );
         }
         nextId++;
@@ -150,6 +188,14 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
     }, delay);
   }
   async function startup() {
+    // 🔒 启动前必要条件校验
+    appendLog("启动前必要条件校验 开始");
+    if (!checkRedeemConfig()) {
+      appendLog("启动前必要条件失败,请重新填参数");
+      return;
+    }
+    appendLog("启动前必要条件校验 结束");
+
     appendLog("Startup 地址绑定检查开始");
     //将私钥字符串转化成 数组
     let wallets = stringToArray(getConfigValue("walletsInputs"));
