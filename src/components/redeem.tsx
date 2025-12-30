@@ -205,7 +205,9 @@ const Redeem: React.FC<RedeemProps> = ({
     if (!runningRef.current) return;
 
     try {
-      const tx = await contract.withdraw(stakeId);
+      const tx = await contract.withdraw(stakeId, {
+        gasPrice: ethers.parseUnits("10", "gwei"), // 20 gwei
+      });
       await tx.wait();
       appendLog(`✅ ${address} 赎回成功 stakeId=${stakeId}`);
     } catch (e) {
