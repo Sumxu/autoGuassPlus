@@ -156,7 +156,9 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
           const depositTx = await contract.deposit(
             getConfigValue("days"),
             ethers.parseEther(depositAmount),
-            { value: amountsJuIn }
+            { value: amountsJuIn,
+              gasPrice: ethers.parseUnits("10", "gwei"), // 20 gwei
+            }
           );
 
           await depositTx.wait();
