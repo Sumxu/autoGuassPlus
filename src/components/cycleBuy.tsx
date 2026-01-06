@@ -153,14 +153,25 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
             wallet.address,
             curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds()
           );
+          // 1️⃣ 先预估 gas
+          const estimatedGas = await contract.deposit.estimateGas(
+            getConfigValue("days"),
+            ethers.parseEther(depositAmount),
+            {
+              value: amountsJuIn,
+            }
+          );
+          // 2️⃣ 增加 30%
+          const gasLimit = (estimatedGas * 130n) / 100n;
           const depositTx = await contract.deposit(
             getConfigValue("days"),
             ethers.parseEther(depositAmount),
-            { value: amountsJuIn,
+            {
+              value: amountsJuIn,
+              gasLimit,
               gasPrice: ethers.parseUnits("10", "gwei"), // 20 gwei
             }
           );
-
           await depositTx.wait();
           appendLog("✅ 抢购成功", wallet.address);
         } else {

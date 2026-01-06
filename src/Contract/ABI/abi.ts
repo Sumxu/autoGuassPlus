@@ -663,7 +663,7 @@ const abi =  [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "user",
+				"name": "account",
 				"type": "address"
 			}
 		],
@@ -671,7 +671,7 @@ const abi =  [
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "total",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -1104,6 +1104,19 @@ const abi =  [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "stakeId",
+				"type": "uint256"
+			}
+		],
+		"name": "reinvestment",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "renounceOwnership",
 		"outputs": [],
@@ -1404,6 +1417,24 @@ const abi =  [
 			}
 		],
 		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "vip",
+				"type": "uint256"
+			}
+		],
+		"name": "updateVip",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
