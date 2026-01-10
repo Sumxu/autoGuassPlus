@@ -17,7 +17,7 @@ const Home: React.FC = () => {
   const [configPlusList, setConfigPlusList] = useState<ConfigPlus>(configPlus);
   const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A"; //合约地址
   const initInviter = "0xbb0516b107ed130a5b6cd00aedeeeb950716f384"; //初始邀请人
-   function getConfigValue(field: string) {
+  function getConfigValue(field: string) {
     return configPlusList.find((i) => i.field === field)?.value;
   }
   useEffect(() => {}, []);
@@ -30,16 +30,18 @@ const Home: React.FC = () => {
             configPlusList={configPlusList}
             setConfigPlusList={setConfigPlusList}
           ></Form>
-         {
-           getConfigValue('robotType')==0&&<CycleBuy
-            configPlusList={configPlusList}
-            setConfigPlusList={setConfigPlusList}
-          ></CycleBuy>
-         }
-         {
-           getConfigValue('robotType')==1&& <Redeem configPlusList={configPlusList}
-            setConfigPlusList={setConfigPlusList}></Redeem>
-         }
+          {getConfigValue("robotType") == 0 && (
+            <CycleBuy
+              configPlusList={configPlusList}
+              setConfigPlusList={setConfigPlusList}
+            ></CycleBuy>
+          )}
+          {getConfigValue("robotType") == 1 && (
+            <Redeem
+              configPlusList={configPlusList}
+              setConfigPlusList={setConfigPlusList}
+            ></Redeem>
+          )}
         </Space>
       </div>
     </div>

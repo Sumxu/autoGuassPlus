@@ -26,8 +26,6 @@ const Form: React.FC<FormProps> = ({ configPlusList, setConfigPlusList }) => {
     });
   };
   const pickerConfirm = (v, item) => {
-    console.log("v----",v[0])
-    console.log("item----",item)
     updateField(item.field, v[0]);
   };
   const setRobotChange = () => {
