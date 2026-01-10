@@ -114,6 +114,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
     if (nextId >= wallets.length) {
       nextId = 0;
     }
+    
     const wallet = new ethers.Wallet(wallets[nextId], provider);
     const contract = new ethers.Contract(stakeAddress, abi, wallet);
     try {
@@ -153,6 +154,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
             wallet.address,
             curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds()
           );
+         
           // 1️⃣ 先预估 gas
           const estimatedGas = await contract.deposit.estimateGas(
             getConfigValue("days"),

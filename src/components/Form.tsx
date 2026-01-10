@@ -26,7 +26,9 @@ const Form: React.FC<FormProps> = ({ configPlusList, setConfigPlusList }) => {
     });
   };
   const pickerConfirm = (v, item) => {
-    updateField(item.field, v);
+    console.log("v----",v[0])
+    console.log("item----",item)
+    updateField(item.field, v[0]);
   };
   const setRobotChange = () => {
     let isShowArr = []; //动态展示的字段
@@ -44,7 +46,13 @@ const Form: React.FC<FormProps> = ({ configPlusList, setConfigPlusList }) => {
         "walletsInputs",
       ];
     } else {
-      isShowArr = ["robotType", "redemType", "redemMinSec", "redemMaxSec",'walletsInputs'];
+      isShowArr = [
+        "robotType",
+        "redemType",
+        "redemMinSec",
+        "redemMaxSec",
+        "walletsInputs",
+      ];
     }
     setConfigPlusList((prevList) =>
       prevList.map((item) => ({
