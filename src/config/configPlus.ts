@@ -1,6 +1,6 @@
 import type { ConfigPlus } from "@/ts/configPlus";
 const configPlus: ConfigPlus = [
-   {
+  {
     label: "选择模式",
     type: "Radio",
     field: "robotType",
@@ -12,7 +12,7 @@ const configPlus: ConfigPlus = [
         value: "0",
       },
       {
-        label: "赎回模式",
+        label: "赎回/复投模式",
         value: "1",
       },
     ],
@@ -47,7 +47,7 @@ const configPlus: ConfigPlus = [
     isShow: false,
     placeholder: "请输入抢购最小金额",
   },
-    {
+  {
     label: "抢购最大投入金额",
     field: "maxAmount",
     value: "20",
@@ -72,7 +72,24 @@ const configPlus: ConfigPlus = [
       },
     ],
   },
-    {
+  {
+    label: "请选择模式",
+    type: "Radio",
+    field: "redeemType",
+    value: "0",
+    isShow: false,
+    array: [
+      {
+        label: "赎回",
+        value: "0",
+      },
+      {
+        label: "复投",
+        value: "1",
+      },
+    ],
+  },
+  {
     label: "抢购间隔时间",
     type: "input",
     isShow: false,
@@ -81,37 +98,37 @@ const configPlus: ConfigPlus = [
     placeholder: "请输入抢购间隔时间",
   },
   {
-    label: "赎回间隔类型(输入最小值和最大值后会取区间去进行赎回)",
+    label: "赎回/复投间隔类型(输入最小值和最大值后会取区间去进行赎回/复投)",
     field: "redemType",
     value: "0",
     type: "Radio",
     isShow: false,
     array: [
       {
-        label: "赎回间隔多少秒",
+        label: "赎回/复投间隔多少秒",
         value: "0",
       },
       {
-        label: "赎回每分钟中的第X秒",
+        label: "赎回/复投每分钟中的第X秒",
         value: "1",
       },
     ],
   },
   {
-    label: "赎回时间最小值",
+    label: "赎回/复投时间最小值",
     type: "input",
     isShow: false,
     field: "redemMinSec",
     value: "1",
-    placeholder: "请输入赎回时间最小值",
+    placeholder: "请输入赎回/复投时间最小值",
   },
   {
-    label: "赎回时间最大值",
+    label: "赎回/复投时间最大值",
     type: "input",
     isShow: false,
     field: "redemMaxSec",
     value: "20",
-    placeholder: "请输入赎回时间最大值",
+    placeholder: "请输入赎回/复投时间最大值",
   },
   {
     label: "绑定邀请人",

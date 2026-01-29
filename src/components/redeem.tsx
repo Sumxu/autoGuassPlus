@@ -17,7 +17,7 @@ const Redeem: React.FC<RedeemProps> = ({
   const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A";
   const provider = new ethers.JsonRpcProvider(
     "https://rpc.juchain.org",
-    210000
+    210000,
   );
   const { fetch } = useNFTMulticall();
   const [logs, setLogs] = useState<string[]>([]);
@@ -28,7 +28,6 @@ const Redeem: React.FC<RedeemProps> = ({
   let contract = null;
   let address = null;
   /**************** 公共工具 ****************/
-
   const appendLog = (...msg: any[]) => {
     const text = msg
       .map((m) => (typeof m === "object" ? JSON.stringify(m) : m))
@@ -55,7 +54,7 @@ const Redeem: React.FC<RedeemProps> = ({
   function getRandomInRangeInclude(
     v1: number,
     v2: number,
-    type: 0 | 1
+    type: 0 | 1,
   ): number {
     let min = Math.max(0, Math.floor(Math.min(v1, v2)));
     let max = Math.max(0, Math.floor(Math.max(v1, v2)));
@@ -127,7 +126,6 @@ const Redeem: React.FC<RedeemProps> = ({
       try {
         const userIds = await contract.userIdsLength(address);
         appendLog(`查询 ${address} stake 数量: ${userIds}`);
-
         if (Number(userIds) > 0) {
           await handleOneWallet(Number(userIds));
         } else {
@@ -160,12 +158,8 @@ const Redeem: React.FC<RedeemProps> = ({
     }));
 
     const idResult = await fetch("userHoldIds", idCalls);
-    console.log("idResult==", idResult);
     if (!idResult.success || !runningRef.current) return;
-
     const holdIds = idResult.data;
-    console.log("holdIds==", holdIds);
-
     /** 2️⃣ 获取 stakeInfo */
     const infoCalls = holdIds.map((id) => ({
       contractAddress: stakeAddress,
@@ -174,9 +168,9 @@ const Redeem: React.FC<RedeemProps> = ({
     }));
 
     const infoResult = await fetch("stakeInfo", infoCalls);
-    console.log("infoResult==", infoResult);
     if (!infoResult.success || !runningRef.current) return;
-    /** 3️⃣ 顺序赎回 */
+
+    /** 3️⃣ 顺序赎回或复投 */
     await redeemAll(holdIds, infoResult.data);
   };
 
@@ -189,13 +183,22 @@ const Redeem: React.FC<RedeemProps> = ({
       const expiredAt = Number(stakeInfo[6]) * 1000;
       const isExpired = Date.now() > expiredAt;
       if (!isExpired) {
-        appendLog(`${address} stake ${holdIds[i]} 未到赎回时间`);
+        // 未到时间
+        appendLog(
+          `${address} stake ${holdIds[i]} 未到${getConfigValue("redeemType") == 0 ? "赎回" : "投入"}时间`,
+        );
         continue;
       }
-      await withdrawOnce(holdIds[i]);
-      await sleepByConfig();
+      if (getConfigValue("redeemType") == 0) {
+        //开始赎回
+        await withdrawOnce(holdIds[i]);
+        await sleepByConfig();
+      } else {
+        //开始复投
+        await reinvestmentOnce(holdIds[i]);
+        await sleepByConfig();
+      }
     }
-
     appendLog(`${address} 所有 stake 已处理完成`);
   };
 
@@ -203,7 +206,6 @@ const Redeem: React.FC<RedeemProps> = ({
 
   const withdrawOnce = async (stakeId: any) => {
     if (!runningRef.current) return;
-
     try {
       const tx = await contract.withdraw(stakeId, {
         gasPrice: ethers.parseUnits("10", "gwei"), // 20 gwei
@@ -214,14 +216,27 @@ const Redeem: React.FC<RedeemProps> = ({
       appendLog(`❌ ${address} 赎回失败 stakeId=${stakeId}`, e);
     }
   };
+  /**************** 单次复投入 ****************/
 
+  const reinvestmentOnce = async (stakeId: any) => {
+    if (!runningRef.current) return;
+    try {
+      const tx = await contract.reinvestment(stakeId, {
+        gasPrice: ethers.parseUnits("10", "gwei"), // 20 gwei
+      });
+      await tx.wait();
+      appendLog(`✅ ${address} 复投成功 stakeId=${stakeId}`);
+    } catch (e) {
+      appendLog(`❌ ${address} 复投失败 stakeId=${stakeId}`, e);
+    }
+  };
   /**************** 间隔控制 ****************/
 
   const sleepByConfig = async () => {
     const sec = getRandomInRangeInclude(
       Number(getConfigValue("redemMinSec")),
       Number(getConfigValue("redemMaxSec")),
-      Number(getConfigValue("redemType")) as 0 | 1
+      Number(getConfigValue("redemType")) as 0 | 1,
     );
 
     let delay = 0;
@@ -238,9 +253,7 @@ const Redeem: React.FC<RedeemProps> = ({
     appendLog(`⏱ 等待 ${delay}ms`);
     await sleep(delay);
   };
-
   /**************** 停止 ****************/
-
   const closeConfig = () => {
     runningRef.current = false;
     setStartupLoading(false);
@@ -256,7 +269,7 @@ const Redeem: React.FC<RedeemProps> = ({
         onClick={startUp}
         style={{ marginTop: 16 }}
       >
-        开始运行赎回
+        开始运行{getConfigValue("redeemType") == 0?'赎回':'复投'}
       </Button>
 
       <Button
@@ -265,10 +278,10 @@ const Redeem: React.FC<RedeemProps> = ({
         onClick={closeConfig}
         style={{ marginTop: 16 }}
       >
-        停止赎回
+        停止{getConfigValue("redeemType") == 0?'赎回':'复投'}
       </Button>
       <div className="logBox">
-        <div className="title">赎回运行日志</div>
+        <div className="title">{getConfigValue("redeemType") == 0?'赎回':'复投'}运行日志</div>
         <Button
           className="delBtn"
           onClick={() =>

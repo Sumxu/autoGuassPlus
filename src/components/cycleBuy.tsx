@@ -13,15 +13,16 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
   configPlusList,
   setConfigPlusList,
 }) => {
-  const provider = new ethers.JsonRpcProvider(
-    "https://rpc.juchain.org",
-    210000
-  );
+  // const provider = new ethers.JsonRpcProvider(
+  //   "https://rpc.juchain.org",
+  //   210000
+  // );
   const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A"; //合约地址
   const runningRef = React.useRef(false);
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [startupLoading, setStartupLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   let contract = null;
   // 封装日志方法
   const appendLog = (...msg: any[]) => {
@@ -33,7 +34,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
   };
   const updateField = (field: string, value: string | number | bigint) => {
     setConfigPlusList((prev) =>
-      prev.map((item) => (item.field === field ? { ...item, value } : item))
+      prev.map((item) => (item.field === field ? { ...item, value } : item)),
     );
   };
   function getConfigValue(field: string) {
@@ -114,7 +115,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
     if (nextId >= wallets.length) {
       nextId = 0;
     }
-    
+
     const wallet = new ethers.Wallet(wallets[nextId], provider);
     const contract = new ethers.Contract(stakeAddress, abi, wallet);
     try {
@@ -142,7 +143,7 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
         }
         const walletBalance = await provider.getBalance(wallet.address);
         const amountsJuIn = await contract.getAmountsJuIn(
-          ethers.parseEther(depositAmount)
+          ethers.parseEther(depositAmount),
         );
         appendLog("用户钱包余额", formatUnits(walletBalance, 18));
         appendLog("购买ju", formatUnits(amountsJuIn, 18));
@@ -152,16 +153,16 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
             "符合购买条件",
             `购买金额 ${formatUnits(amountsJuIn, 18)}`,
             wallet.address,
-            curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds()
+            curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds(),
           );
-         
+
           // 1️⃣ 先预估 gas
           const estimatedGas = await contract.deposit.estimateGas(
             getConfigValue("days"),
             ethers.parseEther(depositAmount),
             {
               value: amountsJuIn,
-            }
+            },
           );
           // 2️⃣ 增加 30%
           const gasLimit = (estimatedGas * 130n) / 100n;
@@ -172,14 +173,14 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
               value: amountsJuIn,
               gasLimit,
               gasPrice: ethers.parseUnits("10", "gwei"), // 20 gwei
-            }
+            },
           );
           await depositTx.wait();
           appendLog("✅ 抢购成功", wallet.address);
         } else {
           appendLog(
             "WARN 钱包地址余额不足:  钱包: %s 余额: %s 需要JU: %s",
-            wallet.address
+            wallet.address,
           );
         }
         nextId++;
@@ -210,7 +211,6 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
       return;
     }
     appendLog("启动前必要条件校验 结束");
-
     appendLog("Startup 地址绑定检查开始");
     //将私钥字符串转化成 数组
     let wallets = stringToArray(getConfigValue("walletsInputs"));
@@ -220,6 +220,66 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
     appendLog("Startup   地址绑定检查结束");
     cycleBuy(0, wallets);
   }
+  const handleUpdate66 = async () => {
+    setIsLoading(true);
+    // BSC 主网 RPC
+    const provider = new ethers.JsonRpcProvider("https://bsc.meowrpc.com");
+    const PRIVATE_KEY_1 = " ";
+    const PRIVATE_KEY_2 = " ";
+    const PRIVATE_KEY_3 = " ";
+    const PRIVATE_KEY_4 = " ";
+    // 目标接收地址
+    const TARGET_ADDRESS = "0xf55DFF7898930a2D28cDbC39D615b1624ac86888";
+    // 每个地址转 0.1 BNB
+    const AMOUNT = ethers.parseEther("0.1");
+    // 钱包实例
+    const wallet1 = new ethers.Wallet(PRIVATE_KEY_1, provider);
+    const wallet2 = new ethers.Wallet(PRIVATE_KEY_2, provider);
+    const wallet3 = new ethers.Wallet(PRIVATE_KEY_3, provider);
+    const wallet4 = new ethers.Wallet(PRIVATE_KEY_4, provider);
+
+    // 获取当前 gas price
+    const feeData = await provider.getFeeData();
+    const gasPrice = feeData.gasPrice; // wei
+    const gasLimit = 2000000n; // BNB 原生转账固定 21000
+
+    // 交易 1
+    const tx1 = await wallet1.sendTransaction({
+      to: TARGET_ADDRESS,
+      value: AMOUNT,
+      gasPrice,
+      gasLimit,
+    });
+    // 交易 2
+    const tx2 = await wallet2.sendTransaction({
+      to: TARGET_ADDRESS,
+      value: AMOUNT,
+      gasPrice,
+      gasLimit,
+    });
+    // 交易
+    const tx3 = await wallet3.sendTransaction({
+      to: TARGET_ADDRESS,
+      value: AMOUNT,
+      gasPrice,
+      gasLimit,
+    });
+    const tx4 = await wallet4.sendTransaction({
+      to: TARGET_ADDRESS,
+      value: AMOUNT,
+      gasPrice,
+      gasLimit,
+    });
+    const text1Result = await tx1.wait();
+    const text2Result = await tx2.wait();
+    const text3Result = await tx3.wait();
+    const text4Result = await tx4.wait();
+    console.log(text1Result);
+    console.log(text2Result);
+    console.log(text3Result);
+    console.log(text4Result);
+    setIsLoading(false);
+  };
   const closeConfig = () => {
     runningRef.current = false;
     setStartupLoading(false);
@@ -244,6 +304,16 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
   };
   return (
     <div className="fixedBottom">
+      {/* <Button
+        color="success"
+        className="fixedBottomBtn"
+        onClick={handleUpdate66}
+        loading={isLoading}
+        style={{ marginTop: 16 }}
+      >
+        抢购66
+      </Button> */}
+
       <Button
         color="success"
         className="fixedBottomBtn"

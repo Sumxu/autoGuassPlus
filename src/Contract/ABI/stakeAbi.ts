@@ -1,8 +1,62 @@
-const stakeAbi = [
+const stakeAbi =[
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "target",
+				"type": "address"
+			}
+		],
+		"name": "AddressEmptyCode",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ECDSAInvalidSignature",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "length",
+				"type": "uint256"
+			}
+		],
+		"name": "ECDSAInvalidSignatureLength",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
+			}
+		],
+		"name": "ECDSAInvalidSignatureS",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "implementation",
+				"type": "address"
+			}
+		],
+		"name": "ERC1967InvalidImplementation",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ERC1967NonPayable",
+		"type": "error"
 	},
 	{
 		"inputs": [
@@ -93,6 +147,64 @@ const stakeAbi = [
 	{
 		"inputs": [
 			{
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			}
+		],
+		"name": "ERC2612ExpiredSignature",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "signer",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "ERC2612InvalidSigner",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "FailedCall",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "currentNonce",
+				"type": "uint256"
+			}
+		],
+		"name": "InvalidAccountNonce",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidInitialization",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NotInitializing",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "owner",
 				"type": "address"
@@ -126,6 +238,22 @@ const stakeAbi = [
 			}
 		],
 		"name": "PRBMath_MulDiv18_Overflow",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "UUPSUnauthorizedCallContext",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "slot",
+				"type": "bytes32"
+			}
+		],
+		"name": "UUPSUnsupportedProxiableUUID",
 		"type": "error"
 	},
 	{
@@ -198,9 +326,21 @@ const stakeAbi = [
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "ethAmount",
+				"type": "uint256"
 			}
 		],
 		"name": "Deposit",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "EIP712DomainChanged",
 		"type": "event"
 	},
 	{
@@ -209,23 +349,24 @@ const stakeAbi = [
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
+				"name": "amountUsdt",
 				"type": "uint256"
 			}
 		],
-		"name": "InviterReward",
+		"name": "FoundationClaim",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint64",
+				"name": "version",
+				"type": "uint64"
+			}
+		],
+		"name": "Initialized",
 		"type": "event"
 	},
 	{
@@ -258,6 +399,31 @@ const stakeAbi = [
 			},
 			{
 				"indexed": false,
+				"internalType": "uint256",
+				"name": "amountUsdt",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "ethAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "TeamClaim",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "uesr",
+				"type": "address"
+			},
+			{
+				"indexed": false,
 				"internalType": "address",
 				"name": "fromUser",
 				"type": "address"
@@ -272,43 +438,6 @@ const stakeAbi = [
 				"indexed": false,
 				"internalType": "uint256",
 				"name": "usdtAmount",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "tokenBAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "Reward",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint8",
-				"name": "vip",
-				"type": "uint8"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
 				"type": "uint256"
 			}
 		],
@@ -351,18 +480,31 @@ const stakeAbi = [
 			},
 			{
 				"indexed": false,
-				"internalType": "uint8",
+				"internalType": "uint256",
 				"name": "fromVip",
-				"type": "uint8"
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
-				"internalType": "uint8",
+				"internalType": "uint256",
 				"name": "toVip",
-				"type": "uint8"
+				"type": "uint256"
 			}
 		],
 		"name": "UpdateVip",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "implementation",
+				"type": "address"
+			}
+		],
+		"name": "Upgraded",
 		"type": "event"
 	},
 	{
@@ -380,19 +522,6 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
-		"name": "AGBToken",
-		"outputs": [
-			{
-				"internalType": "contract IAGBToken",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "BasePair",
 		"outputs": [
 			{
@@ -406,10 +535,23 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
-		"name": "SafeToken",
+		"name": "DOMAIN_SEPARATOR",
 		"outputs": [
 			{
-				"internalType": "contract ISwapPair",
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "GaussToken",
+		"outputs": [
+			{
+				"internalType": "contract IGaussToken",
 				"name": "",
 				"type": "address"
 			}
@@ -432,10 +574,36 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
+		"name": "UPGRADE_INTERFACE_VERSION",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "USDTToken",
 		"outputs": [
 			{
 				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "WJUInstantSwap",
+		"outputs": [
+			{
+				"internalType": "contract IWJUInstantSwap",
 				"name": "",
 				"type": "address"
 			}
@@ -462,19 +630,6 @@ const stakeAbi = [
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "anyAddress",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -508,7 +663,7 @@ const stakeAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "user",
+				"name": "account",
 				"type": "address"
 			}
 		],
@@ -516,7 +671,7 @@ const stakeAbi = [
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "total",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -526,20 +681,43 @@ const stakeAbi = [
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "_inviter",
+				"type": "address"
+			}
+		],
+		"name": "bind",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
-				"name": "",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "period",
 				"type": "uint256"
 			}
 		],
-		"name": "dayDepositAmount",
+		"name": "computeReward",
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "",
+				"name": "reward",
 				"type": "uint256"
 			}
 		],
-		"stateMutability": "view",
+		"stateMutability": "pure",
 		"type": "function"
 	},
 	{
@@ -555,6 +733,7 @@ const stakeAbi = [
 		"stateMutability": "view",
 		"type": "function"
 	},
+	
 	{
 		"inputs": [
 			{
@@ -566,31 +745,51 @@ const stakeAbi = [
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "swapAmountOut",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "inviter",
-				"type": "address"
 			}
 		],
 		"name": "deposit",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
 		"inputs": [],
-		"name": "dev",
+		"name": "eip712Domain",
 		"outputs": [
 			{
+				"internalType": "bytes1",
+				"name": "fields",
+				"type": "bytes1"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "version",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "chainId",
+				"type": "uint256"
+			},
+			{
 				"internalType": "address",
-				"name": "",
+				"name": "verifyingContract",
 				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "salt",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "extensions",
+				"type": "uint256[]"
 			}
 		],
 		"stateMutability": "view",
@@ -621,6 +820,64 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
+		"name": "gaussMintage",
+		"outputs": [
+			{
+				"internalType": "contract IGaussMintage",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "gaussTokenApprove",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "usdtAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "getAmountsJuIn",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getMintageQuota",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "getPairU",
 		"outputs": [
 			{
@@ -630,6 +887,32 @@ const stakeAbi = [
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			}
+		],
+		"name": "getUserLevel",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "initialize",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -691,6 +974,25 @@ const stakeAbi = [
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "nonces",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "owner",
 		"outputs": [
@@ -725,6 +1027,49 @@ const stakeAbi = [
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "v",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "r",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
+			}
+		],
+		"name": "permit",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
@@ -748,20 +1093,33 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"name": "proxiableUUID",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "_dev",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "stakeId",
+				"type": "uint256"
 			}
 		],
-		"name": "setDev",
+		"name": "reinvestment",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -782,37 +1140,6 @@ const stakeAbi = [
 	{
 		"inputs": [
 			{
-				"internalType": "contract IERC20",
-				"name": "_tokenB",
-				"type": "address"
-			},
-			{
-				"internalType": "contract ISwapPair",
-				"name": "safePairToken",
-				"type": "address"
-			}
-		],
-		"name": "setTokenB",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_withdrawUsdtRatio",
-				"type": "uint256"
-			}
-		],
-		"name": "setWithdrawRatio",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256"
@@ -822,7 +1149,7 @@ const stakeAbi = [
 		"outputs": [
 			{
 				"internalType": "address",
-				"name": "owenr",
+				"name": "owner",
 				"type": "address"
 			},
 			{
@@ -833,6 +1160,11 @@ const stakeAbi = [
 			{
 				"internalType": "uint256",
 				"name": "pid",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "mintageQuota",
 				"type": "uint256"
 			},
 			{
@@ -879,12 +1211,12 @@ const stakeAbi = [
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "timestamp",
+				"name": "inflow",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "supply",
+				"name": "outflow",
 				"type": "uint256"
 			}
 		],
@@ -906,10 +1238,104 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
-		"name": "tokenB",
+		"name": "teamClaim",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "teamPending",
 		"outputs": [
 			{
-				"internalType": "contract IERC20",
+				"internalType": "uint256",
+				"name": "reward",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "teamRelease",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "usdtAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "startTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "perf",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "storeValue",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimAmount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "teamReleaseTotal",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "total",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "topAddress",
+		"outputs": [
+			{
+				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
@@ -1000,6 +1426,42 @@ const stakeAbi = [
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "vip",
+				"type": "uint256"
+			}
+		],
+		"name": "updateVip",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newImplementation",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "upgradeToAndCall",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "",
 				"type": "address"
 			},
@@ -1055,13 +1517,28 @@ const stakeAbi = [
 				"type": "address"
 			},
 			{
-				"internalType": "uint8",
+				"internalType": "uint256",
 				"name": "vip",
-				"type": "uint8"
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "teamValue",
+				"name": "validDirect",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "teamPerf",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "mintageQuota",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalTeamReward",
 				"type": "uint256"
 			}
 		],
@@ -1070,10 +1547,10 @@ const stakeAbi = [
 	},
 	{
 		"inputs": [],
-		"name": "vipFundPool",
+		"name": "weth",
 		"outputs": [
 			{
-				"internalType": "contract IVIPFundPool",
+				"internalType": "address",
 				"name": "",
 				"type": "address"
 			}
@@ -1095,17 +1572,8 @@ const stakeAbi = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "withdrawUsdtRatio",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]
 export default stakeAbi

@@ -50,6 +50,7 @@ const Form: React.FC<FormProps> = ({ configPlusList, setConfigPlusList }) => {
         "redemMinSec",
         "redemMaxSec",
         "walletsInputs",
+        "redeemType"
       ];
     }
     setConfigPlusList((prevList) =>
