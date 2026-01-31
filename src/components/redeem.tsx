@@ -5,6 +5,7 @@ import { ethers, Wallet, Contract } from "ethers";
 import { useNFTMulticall } from "@/Hooks/useNFTTokensByOwner";
 import type { ConfigPlus } from "@/ts/configPlus";
 import { Button, Dialog, Toast } from "antd-mobile";
+import EnvManager from "@/config/EnvManager";
 
 interface RedeemProps {
   configPlusList: ConfigPlus;
@@ -14,17 +15,11 @@ const Redeem: React.FC<RedeemProps> = ({
   configPlusList,
   setConfigPlusList,
 }) => {
-   const provider = new ethers.JsonRpcProvider(
-      "https://testnet-rpc.juchain.org",
-      202599,
-    );
-
-  // const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A";
-  const stakeAddress = "0x3303040fB033b25CA618C76aaD356290c0C71E0b";
-  // const provider = new ethers.JsonRpcProvider(
-  //   "https://bsc.blockrazor.xyz/1915635065170173952",
-  //   56,
-  // );
+  const provider = new ethers.JsonRpcProvider(
+    EnvManager.rpcUrl,
+    EnvManager.chainId,
+  );
+  const stakeAddress = EnvManager.stakeAddress;
   const { fetch } = useNFTMulticall();
   const [logs, setLogs] = useState<string[]>([]);
   const [startupLoading, setStartupLoading] = useState<boolean>(false);
@@ -172,7 +167,7 @@ const Redeem: React.FC<RedeemProps> = ({
       abi,
       params: [id],
     }));
-    console.log("infoCalls")
+    console.log("infoCalls");
     const infoResult = await fetch("stakeInfo", infoCalls);
     if (!infoResult.success || !runningRef.current) return;
 
@@ -191,7 +186,7 @@ const Redeem: React.FC<RedeemProps> = ({
       if (!isExpired) {
         // 未到时间
         appendLog(
-          `${address} stake ${holdIds[i]} 未到${getConfigValue("redeemType") == 0 ? "赎回" : "投入"}时间`,
+          `${address} stake ${holdIds[i]} 未到${getConfigValue("redeemType") == 0 ? "赎回" : "投入"}时间:赎回时间${formatTime(expiredAt)}`,
         );
         continue;
       }
@@ -259,6 +254,16 @@ const Redeem: React.FC<RedeemProps> = ({
     appendLog(`⏱ 等待 ${delay}ms`);
     await sleep(delay);
   };
+  function formatTime(ts) {
+    const d = new Date(Number(ts));
+    const Y = d.getFullYear();
+    const M = String(d.getMonth() + 1).padStart(2, "0");
+    const D = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const m = String(d.getMinutes()).padStart(2, "0");
+    const s = String(d.getSeconds()).padStart(2, "0");
+    return `${Y}-${M}-${D} ${h}:${m}:${s}`;
+  }
   /**************** 停止 ****************/
   const closeConfig = () => {
     runningRef.current = false;

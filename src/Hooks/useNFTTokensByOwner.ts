@@ -20,8 +20,8 @@ export const useNFTMulticall = () => {
       //      210000
       //    );
       const provider = new ethers.JsonRpcProvider(
-        "https://testnet-rpc.juchain.org",
-        202599,
+        EnvManager.rpcUrl,
+        EnvManager.chainId,
       );
       // multicall 合约
       const multicallContract = new ethers.Contract(

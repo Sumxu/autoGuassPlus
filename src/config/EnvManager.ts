@@ -45,45 +45,21 @@ class EnvManager {
   static get chainId(): string {
     return EnvManager.config.chainId;
   }
-  static get configAll(): Readonly<EnvConfig> {
-    return EnvManager.config;
-  }
-  static get contractSpaceNFT(): string {
-    return EnvManager.config.contractSpaceNFT;
-  }
+
   static get multiCallToken(): string {
     return EnvManager.config.multiCallToken;
   }
-  
   static get contractUsdt(): string {
     return EnvManager.config.contractUsdt;
   }
-  static get contractTAXToken(): string {
-    return EnvManager.config.contractTAXToken;
+  static get stakeAddress(): string {
+    return EnvManager.config.stakeAddress;
   }
   static get rpcUrl(): string {
     return EnvManager.config.rpcUrl;
   }
-
-  static get blockExplorerUrls(): string {
-    return EnvManager.config.blockExplorerUrls;
-  }
-
-  static get chainName(): string {
-    return EnvManager.config.chainName;
-  }
-
-  static get apiBase(): string {
-    return EnvManager.config.apiBase;
-  }
- static get taxPool(): string {
-    return EnvManager.config.taxPool;
-  }
-   static get storeToken(): string {
-    return EnvManager.config.storeToken;
-  }
-     static get swapRouter(): string {
-    return EnvManager.config.swapRouter;
+  static get configAll(): Readonly<EnvConfig> {
+    return EnvManager.config;
   }
   /** 调试打印（仅开发环境） */
   static print(): void {

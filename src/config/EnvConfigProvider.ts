@@ -2,15 +2,11 @@
 
 /** 环境配置接口（已去掉 VITE_ 前缀，字段名更友好） */
 export interface EnvConfig {
-  apiBase: string;
-  contractPool: string;
   contractUsdt: string;
-  contractCa: string;
-  contractIdoPool: string;
-  chainId: string;
+  chainId: number;
   rpcUrl: string;
-  blockExplorerUrls: string;
-  chainName: string;
+  stakeAddress: string;
+  multiCallToken: string;
 }
 
 /** 环境配置提供类：集中维护 dev / prod 原始值 */
@@ -18,35 +14,21 @@ export default class EnvConfigProvider {
   /** 开发环境配置（测试网） */
   static getDevConfig(): EnvConfig {
     return {
-      apiBase: "https://v1.clkapp.cc/",
-      contractSpaceNFT: "0x263D57668c2fFE0848171533DC510EAc70140e5a",
-      contractUsdt: "0x2Cba653C50e9A2e97411104d1460EBFAECE50E9C",
-      contractTAXToken: "0xA731812CF8bAb136ACEa9835A2e54493a3A1f2e2",
-      taxPool: "0xa7e3Ce0176de606C476Fc742cB20c2EF17AA1f09",
-      chainId: "0x61",
+      contractUsdt: "0x2551E01a708A41990D75513B4Cbe7aC4cFAA94aA",
+      stakeAddress: "0x3303040fB033b25CA618C76aaD356290c0C71E0b",
       multiCallToken: "0x68ef1A6CB7dB362821EE4f9971c10F8D6e250A74",
-      storeToken: "0x87663d59f95ed4689D74733206b04806477e82b3",
-      rpcUrl: "https://bsc-testnet-rpc.publicnode.com/",
-      blockExplorerUrls: "http://143.92.39.28:9030/api",
-      swapRouter:"0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
-      chainName: "BNB Smart Chain Mainnet",
+      rpcUrl: "https://testnet-rpc.juchain.org",
+      chainId: 202599,
     };
   }
   /** 生产环境配置（主网） */
   static getProdConfig(): EnvConfig {
     return {
-      apiBase: "https://api.taxshop.plus/dapp/",
-      taxPool: "0xa7e3Ce0176de606C476Fc742cB20c2EF17AA1f09",
-      storeToken: "0x87663d59f95ed4689D74733206b04806477e82b3",
-      contractSpaceNFT: "0x764eEaB717b68056C02a75677C784b98e54Fc042",
-      multiCallToken: "0x1d3C076d568F3dCaF3CBbecbd724Fc901c9fCf81",
       contractUsdt: "0x55d398326f99059fF775485246999027B3197955",
-      contractTAXToken: "0xFcB022Fc4a72E3Ce5bCA867BB888fc88b03e9e81",
-      swapRouter:"0x10ED43C718714eb63d5aA57B78B54704E256024E",
-      chainId: "0x38",
-      rpcUrl: "https://bsc-dataseed.binance.org/",
-      blockExplorerUrls: "https://bscscan.com",
-      chainName: "BNB Smart Chain Mainnet",
+      stakeAddress: "0x2f3b94fa48109809F87AE190167027a86888250A",
+      multiCallToken: "0x1d3C076d568F3dCaF3CBbecbd724Fc901c9fCf81",
+      rpcUrl: "https://rpc.juchain.org",
+      chainId: 210000,
     };
   }
 }
