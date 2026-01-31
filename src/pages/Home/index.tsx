@@ -11,8 +11,8 @@ import configPlus from "@/config/configPlus";
 import type { ConfigPlus } from "@/ts/configPlus";
 const Home: React.FC = () => {
   const provider = new ethers.JsonRpcProvider(
-    "https://rpc.juchain.org",
-    210000
+    "https://bsc.blockrazor.xyz/1915635065170173952",
+    56
   );
   const [configPlusList, setConfigPlusList] = useState<ConfigPlus>(configPlus);
   const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A"; //合约地址

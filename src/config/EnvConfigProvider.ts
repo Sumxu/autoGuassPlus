@@ -24,7 +24,7 @@ export default class EnvConfigProvider {
       contractTAXToken: "0xA731812CF8bAb136ACEa9835A2e54493a3A1f2e2",
       taxPool: "0xa7e3Ce0176de606C476Fc742cB20c2EF17AA1f09",
       chainId: "0x61",
-      multiCallToken: "0x1d3C076d568F3dCaF3CBbecbd724Fc901c9fCf81",
+      multiCallToken: "0x68ef1A6CB7dB362821EE4f9971c10F8D6e250A74",
       storeToken: "0x87663d59f95ed4689D74733206b04806477e82b3",
       rpcUrl: "https://bsc-testnet-rpc.publicnode.com/",
       blockExplorerUrls: "http://143.92.39.28:9030/api",

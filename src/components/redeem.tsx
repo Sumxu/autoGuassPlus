@@ -14,11 +14,17 @@ const Redeem: React.FC<RedeemProps> = ({
   configPlusList,
   setConfigPlusList,
 }) => {
-  const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A";
-  const provider = new ethers.JsonRpcProvider(
-    "https://rpc.juchain.org",
-    210000,
-  );
+   const provider = new ethers.JsonRpcProvider(
+      "https://testnet-rpc.juchain.org",
+      202599,
+    );
+
+  // const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A";
+  const stakeAddress = "0x3303040fB033b25CA618C76aaD356290c0C71E0b";
+  // const provider = new ethers.JsonRpcProvider(
+  //   "https://bsc.blockrazor.xyz/1915635065170173952",
+  //   56,
+  // );
   const { fetch } = useNFTMulticall();
   const [logs, setLogs] = useState<string[]>([]);
   const [startupLoading, setStartupLoading] = useState<boolean>(false);
@@ -166,7 +172,7 @@ const Redeem: React.FC<RedeemProps> = ({
       abi,
       params: [id],
     }));
-
+    console.log("infoCalls")
     const infoResult = await fetch("stakeInfo", infoCalls);
     if (!infoResult.success || !runningRef.current) return;
 
@@ -269,7 +275,7 @@ const Redeem: React.FC<RedeemProps> = ({
         onClick={startUp}
         style={{ marginTop: 16 }}
       >
-        开始运行{getConfigValue("redeemType") == 0?'赎回':'复投'}
+        开始运行{getConfigValue("redeemType") == 0 ? "赎回" : "复投"}
       </Button>
 
       <Button
@@ -278,10 +284,12 @@ const Redeem: React.FC<RedeemProps> = ({
         onClick={closeConfig}
         style={{ marginTop: 16 }}
       >
-        停止{getConfigValue("redeemType") == 0?'赎回':'复投'}
+        停止{getConfigValue("redeemType") == 0 ? "赎回" : "复投"}
       </Button>
       <div className="logBox">
-        <div className="title">{getConfigValue("redeemType") == 0?'赎回':'复投'}运行日志</div>
+        <div className="title">
+          {getConfigValue("redeemType") == 0 ? "赎回" : "复投"}运行日志
+        </div>
         <Button
           className="delBtn"
           onClick={() =>

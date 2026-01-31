@@ -515,6 +515,24 @@ const stakeAbi =[
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "isReinvestment",
+				"type": "bool"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "ethAmount",
+				"type": "uint256"
 			}
 		],
 		"name": "Withdraw",
@@ -694,6 +712,24 @@ const stakeAbi =[
 	{
 		"inputs": [
 			{
+				"internalType": "address[]",
+				"name": "_user",
+				"type": "address[]"
+			},
+			{
+				"internalType": "address[]",
+				"name": "_inviter",
+				"type": "address[]"
+			}
+		],
+		"name": "bindList",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
@@ -733,7 +769,6 @@ const stakeAbi =[
 		"stateMutability": "view",
 		"type": "function"
 	},
-	
 	{
 		"inputs": [
 			{
@@ -748,6 +783,29 @@ const stakeAbi =[
 			}
 		],
 		"name": "deposit",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "pid",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "depositProxy",
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"
@@ -832,13 +890,6 @@ const stakeAbi =[
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "gaussTokenApprove",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -906,6 +957,24 @@ const stakeAbi =[
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "vip",
+				"type": "uint256"
+			}
+		],
+		"name": "highVipSettings",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -1247,6 +1316,35 @@ const stakeAbi =[
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "teamLine",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "v4",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "v5",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "v6",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
 				"name": "_user",
 				"type": "address"
 			}
@@ -1540,6 +1638,30 @@ const stakeAbi =[
 				"internalType": "uint256",
 				"name": "totalTeamReward",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "validDirectAddr",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
