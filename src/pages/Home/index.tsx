@@ -10,13 +10,7 @@ import Form from "@/components/Form";
 import configPlus from "@/config/configPlus";
 import type { ConfigPlus } from "@/ts/configPlus";
 const Home: React.FC = () => {
-  const provider = new ethers.JsonRpcProvider(
-    "https://bsc.blockrazor.xyz/1915635065170173952",
-    56
-  );
   const [configPlusList, setConfigPlusList] = useState<ConfigPlus>(configPlus);
-  const stakeAddress = "0x2f3b94fa48109809F87AE190167027a86888250A"; //合约地址
-  const initInviter = "0xbb0516b107ed130a5b6cd00aedeeeb950716f384"; //初始邀请人
   function getConfigValue(field: string) {
     return configPlusList.find((i) => i.field === field)?.value;
   }

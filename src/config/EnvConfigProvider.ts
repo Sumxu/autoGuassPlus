@@ -24,7 +24,7 @@ export default class EnvConfigProvider {
   /** 生产环境配置（主网） */
   static getProdConfig(): EnvConfig {
     return {
-      contractUsdt: "0x55d398326f99059fF775485246999027B3197955",
+      contractUsdt: "0xc8e19c19479a866142b42fb390f2ea1ff082e0d2",
       stakeAddress: "0x2f3b94fa48109809F87AE190167027a86888250A",
       multiCallToken: "0x1d3C076d568F3dCaF3CBbecbd724Fc901c9fCf81",
       rpcUrl: "https://rpc.juchain.org",

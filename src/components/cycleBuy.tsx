@@ -109,86 +109,79 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
     }
   }
 
-  function scheduleNextRound(wallets: string[]) {
+  async function cycleBuy(nextIndex: number, wallets: string[]) {
     if (!runningRef.current) return;
-
-    let delay = 0;
-    if (getConfigValue("buyType") == 0) {
-      delay = Number(getConfigValue("buySec")) * 1000;
-    } else {
-      const nextTime = new Date();
-      nextTime.setMinutes(nextTime.getMinutes() + 1);
-      nextTime.setSeconds(Number(getConfigValue("buySec")));
-      delay = nextTime.getTime() - Date.now();
+    if (nextIndex >= wallets.length) {
+      nextIndex = 0;
     }
-
-    appendLog(`⏱ 下一轮执行 ${delay}ms 后`);
-    timerRef.current = setTimeout(() => cycleBuy(0, wallets), delay);
-  }
-
-  async function cycleBuy(index: number, wallets: string[]) {
-    if (!runningRef.current) return;
-
-    if (index >= wallets.length) {
-      appendLog("❌ 本轮全部钱包失败，执行完毕");
-      scheduleNextRound(wallets);
-      return;
-    }
-
-    const wallet = new ethers.Wallet(wallets[index], provider);
+    const wallet = new ethers.Wallet(wallets[nextIndex], provider);
     const contract = new ethers.Contract(stakeAddress, abi, wallet);
     const usdt = new ethers.Contract(USDTAddress, erc20ABI, wallet);
-
     try {
-      const maxStake = Number(formatEther(await contract.maxStakeAmount()));
+      let maxStake = Number(formatEther(await contract.maxStakeAmount()));
       updateField("maxStakeAmountStr", maxStake);
-      const maxAmount = Number(getConfigValue("maxAmount"));
-      const minAmount = Number(getConfigValue("minAmount"));
+      let maxAmount = Number(getConfigValue("maxAmount"));
+      let minAmount = Number(getConfigValue("minAmount"));
       if (!runningRef.current) return;
       if (maxStake >= Number(maxAmount)) {
         maxStake = maxAmount;
       }
-      const amount = Math.floor(
-        Math.random() * (maxAmount - minAmount) + minAmount,
-      );
-      const buyAmount = ethers.parseEther(amount.toString());
-
-      const balance = await usdt.balanceOf(wallet.address);
-      if (balance < buyAmount) {
-        appendLog(
-          `钱包地址余额不足:`,
-          `钱包地址${wallet.address}:余额${ethers.parseEther(balance)},需要:${amount}USDT`,
+      if (maxAmount >= minAmount) {
+        const amount = Math.floor(
+          Math.random() * (maxAmount - minAmount) + minAmount,
         );
-        throw new Error("余额不足");
+        let depositAmount = Number(amount).toFixed(0);
+        if (depositAmount == 0) {
+          depositAmount = getConfigValue("minAmount");
+        }
+        const balance = await usdt.balanceOf(wallet.address); //得到用户余额
+        const buyAmount = ethers.parseEther(depositAmount); //购买的金额
+        if (balance > buyAmount) {
+          const curr = new Date();
+          appendLog(
+            "符合购买条件",
+            `购买金额 ${amount}`,
+            wallet.address,
+            curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds(),
+          );
+          const gas = await contract.deposit.estimateGas(
+            getConfigValue("days"),
+            buyAmount,
+          );
+          const tx = await contract.deposit(getConfigValue("days"), buyAmount, {
+            gasLimit: (gas * 130n) / 100n,
+            gasPrice: ethers.parseUnits("10", "gwei"),
+          });
+          await tx.wait();
+          appendLog("✅ 抢购成功", wallet.address);
+          // throw new Error("余额不足");
+        } else {
+          appendLog(
+            `钱包地址余额不足:`,
+            `钱包地址${wallet.address}:余额${ethers.parseEther(balance)},需要:${amount}USDT`,
+          );
+        }
       }
-
-      const gas = await contract.deposit.estimateGas(
-        getConfigValue("days"),
-        buyAmount,
-      );
-      const curr = new Date();
-      appendLog(
-        "符合购买条件",
-        `购买金额 ${amount}`,
-        wallet.address,
-        curr.getHours() + ":" + curr.getMinutes() + ":" + curr.getSeconds(),
-      );
-
-      const tx = await contract.deposit(getConfigValue("days"), buyAmount, {
-        gasLimit: (gas * 130n) / 100n,
-        gasPrice: ethers.parseUnits("10", "gwei"),
-      });
-
-      await tx.wait();
-      appendLog("✅ 抢购成功", wallet.address);
-      scheduleNextRound(wallets);
     } catch (e) {
       console.log("e---", e);
-      appendLog(`❌ ${wallet.address} 失败，切换下一个`, e);
-      cycleBuy(index + 1, wallets);
+      appendLog(`❌ ${wallet.address} 抢购失败，切换下一个`, e);
     }
+    nextIndex++;
+    // ⏱️ 下一次执行
+    let delay = 0;
+    if (getConfigValue("buyType") == 0) {
+      delay = getConfigValue("buySec") * 1000;
+    } else {
+      const nextTime = new Date();
+      nextTime.setMinutes(new Date().getMinutes() + 1);
+      nextTime.setSeconds(getConfigValue("buySec"));
+      delay = nextTime.getTime() - Date.now();
+    }
+    appendLog(`⏱ 下一次执行 ${delay}ms 后`);
+    timerRef.current = setTimeout(() => {
+      cycleBuy(nextIndex, wallets);
+    }, delay);
   }
-
   async function startup() {
     appendLog("启动前必要条件校验 开始");
     if (!checkRedeemConfig()) {
@@ -208,7 +201,6 @@ const CycleBuy: React.FC<CycleBuyProps> = ({
       await checkAndApprove(pk);
       appendLog("授权usdt额度结束");
     }
-
     appendLog("✅ 钱包初始化完成");
     cycleBuy(0, wallets);
   }
